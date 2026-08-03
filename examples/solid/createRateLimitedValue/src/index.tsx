@@ -1,4 +1,4 @@
-import { createSignal } from 'solid-js'
+import { createEffect, createSignal } from 'solid-js'
 import { render } from '@solidjs/web'
 import { createRateLimitedValue } from '@tanstack/solid-pacer/rate-limiter'
 
@@ -7,18 +7,26 @@ function App1() {
   const [instantCount, setInstantCount] = createSignal(0)
 
   // Using createRateLimitedValue with a rate limit of 5 executions per 5 seconds
-  const [limitedCount] = createRateLimitedValue(
+  const [limitedCount, rateLimiter] = createRateLimitedValue(
     instantCount,
     {
       limit: 5,
       window: 5000,
-      windowType: windowType(),
     },
     // Alternative to rateLimiter.Subscribe: pass a selector as 3rd arg to track state and subscribe to updates
     // (state) => ({
     //   executionCount: state.executionCount,
     //   rejectionCount: state.rejectionCount,
     // }),
+  )
+
+  // The options object above is a construction-time snapshot — Solid has no
+  // render pass — so setOptions is what makes the Fixed/Sliding radios live.
+  createEffect(
+    () => windowType(),
+    (next) => {
+      rateLimiter.setOptions({ windowType: next })
+    },
   )
 
   function increment() {
@@ -74,18 +82,26 @@ function App2() {
   const [instantSearch, setInstantSearch] = createSignal('')
 
   // Using createRateLimitedValue with a rate limit of 5 executions per 5 seconds
-  const [limitedSearch] = createRateLimitedValue(
+  const [limitedSearch, rateLimiter] = createRateLimitedValue(
     instantSearch,
     {
       limit: 5,
       window: 5000,
-      windowType: windowType(),
     },
     // Alternative to rateLimiter.Subscribe: pass a selector as 3rd arg to track state and subscribe to updates
     // (state) => ({
     //   executionCount: state.executionCount,
     //   rejectionCount: state.rejectionCount,
     // }),
+  )
+
+  // The options object above is a construction-time snapshot — Solid has no
+  // render pass — so setOptions is what makes the Fixed/Sliding radios live.
+  createEffect(
+    () => windowType(),
+    (next) => {
+      rateLimiter.setOptions({ windowType: next })
+    },
   )
 
   function handleSearchChange(e: Event) {
@@ -154,7 +170,6 @@ function App3() {
     {
       limit: 20,
       window: 2000,
-      windowType: windowType(),
       onReject: (rateLimiter) =>
         console.log(
           'Rejected by rate limiter',
@@ -166,6 +181,15 @@ function App3() {
     //   executionCount: state.executionCount,
     //   rejectionCount: state.rejectionCount,
     // }),
+  )
+
+  // The options object above is a construction-time snapshot — Solid has no
+  // render pass — so setOptions is what makes the Fixed/Sliding radios live.
+  createEffect(
+    () => windowType(),
+    (next) => {
+      rateLimiter.setOptions({ windowType: next })
+    },
   )
 
   function handleRangeChange(e: Event) {

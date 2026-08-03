@@ -3,16 +3,18 @@ import { render } from '@solidjs/web'
 import { rateLimit } from '@tanstack/solid-pacer/rate-limiter'
 
 function App1() {
-  const [windowType, setWindowType] = createSignal<'fixed' | 'sliding'>('fixed')
   // Use your state management library of choice
   const [instantCount, setInstantCount] = createSignal(0)
   const [rateLimitedCount, setRateLimitedCount] = createSignal(0)
 
   // Create rate-limited setter function - Stable reference required!
+  // rateLimit() returns only the bound maybeExecute, so there is no instance to
+  // reconfigure: these options are fixed for the life of the page. Use
+  // createRateLimiter if you need to change them later — that example has a live
+  // fixed/sliding toggle driven through setOptions.
   const rateLimitedSetCount = rateLimit(setRateLimitedCount, {
     limit: 5,
     window: 5000,
-    windowType: windowType(),
     onReject: (rateLimiter) =>
       console.log(
         'Rejected by rate limiter',
@@ -32,28 +34,6 @@ function App1() {
   return (
     <div>
       <h1>TanStack Pacer rateLimit Example 1</h1>
-      <div style={{ display: 'grid', gap: '0.5rem', 'margin-bottom': '1rem' }}>
-        <label>
-          <input
-            type="radio"
-            name="windowType"
-            value="fixed"
-            checked={windowType() === 'fixed'}
-            onChange={() => setWindowType('fixed')}
-          />
-          Fixed Window
-        </label>
-        <label>
-          <input
-            type="radio"
-            name="windowType"
-            value="sliding"
-            checked={windowType() === 'sliding'}
-            onChange={() => setWindowType('sliding')}
-          />
-          Sliding Window
-        </label>
-      </div>
       <table>
         <tbody>
           <tr>
@@ -74,15 +54,17 @@ function App1() {
 }
 
 function App2() {
-  const [windowType, setWindowType] = createSignal<'fixed' | 'sliding'>('fixed')
   const [text, setText] = createSignal('')
   const [rateLimitedText, setRateLimitedText] = createSignal('')
 
   // Create rate-limited setter function - Stable reference required!
+  // rateLimit() returns only the bound maybeExecute, so there is no instance to
+  // reconfigure: these options are fixed for the life of the page. Use
+  // createRateLimiter if you need to change them later — that example has a live
+  // fixed/sliding toggle driven through setOptions.
   const rateLimitedSetText = rateLimit(setRateLimitedText, {
     limit: 5,
     window: 5000,
-    windowType: windowType(),
     onReject: (rateLimiter) =>
       console.log(
         'Rejected by rate limiter',
@@ -100,28 +82,6 @@ function App2() {
   return (
     <div>
       <h1>TanStack Pacer rateLimit Example 2</h1>
-      <div style={{ display: 'grid', gap: '0.5rem', 'margin-bottom': '1rem' }}>
-        <label>
-          <input
-            type="radio"
-            name="windowType2"
-            value="fixed"
-            checked={windowType() === 'fixed'}
-            onChange={() => setWindowType('fixed')}
-          />
-          Fixed Window
-        </label>
-        <label>
-          <input
-            type="radio"
-            name="windowType2"
-            value="sliding"
-            checked={windowType() === 'sliding'}
-            onChange={() => setWindowType('sliding')}
-          />
-          Sliding Window
-        </label>
-      </div>
       <div>
         <input
           autofocus
@@ -149,15 +109,17 @@ function App2() {
 }
 
 function App3() {
-  const [windowType, setWindowType] = createSignal<'fixed' | 'sliding'>('fixed')
   const [currentValue, setCurrentValue] = createSignal(50)
   const [rateLimitedValue, setRateLimitedValue] = createSignal(50)
 
   // Create rate-limited setter function - Stable reference required!
+  // rateLimit() returns only the bound maybeExecute, so there is no instance to
+  // reconfigure: these options are fixed for the life of the page. Use
+  // createRateLimiter if you need to change them later — that example has a live
+  // fixed/sliding toggle driven through setOptions.
   const rateLimitedSetValue = rateLimit(setRateLimitedValue, {
     limit: 20,
     window: 2000,
-    windowType: windowType(),
     onReject: (rateLimiter) =>
       console.log(
         'Rejected by rate limiter',
@@ -175,28 +137,6 @@ function App3() {
   return (
     <div>
       <h1>TanStack Pacer rateLimit Example 3</h1>
-      <div style={{ display: 'grid', gap: '0.5rem', 'margin-bottom': '1rem' }}>
-        <label>
-          <input
-            type="radio"
-            name="windowType3"
-            value="fixed"
-            checked={windowType() === 'fixed'}
-            onChange={() => setWindowType('fixed')}
-          />
-          Fixed Window
-        </label>
-        <label>
-          <input
-            type="radio"
-            name="windowType3"
-            value="sliding"
-            checked={windowType() === 'sliding'}
-            onChange={() => setWindowType('sliding')}
-          />
-          Sliding Window
-        </label>
-      </div>
       <div style={{ 'margin-bottom': '20px' }}>
         <label>
           Current Range:

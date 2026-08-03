@@ -45,10 +45,9 @@ const KNOWN = {
   // Benign — re-evaluated per call — but it belongs to packages/pacer, which
   // this migration does not modify.
   createDebouncer: { STRICT_READ_UNTRACKED: 2 },
-  // pacer-n8j.5: the examples freeze `windowType: windowType()` in the options
-  // literal, so the radios genuinely do nothing. Pre-existing upstream; the
-  // diagnostic is correct here and must not be untracked away.
-  createRateLimitedValue: { STRICT_READ_UNTRACKED: 3 },
+  // pacer-n8j.5 fixed the frozen `windowType: windowType()` in the rate-limiter
+  // examples, so createRateLimitedValue no longer has an allowance here. If a
+  // STRICT_READ_UNTRACKED reappears there, it is a regression, not a known.
 }
 
 const first = (rows, key) => (rows[key] ?? [])[0]

@@ -3,7 +3,6 @@ import { render } from '@solidjs/web'
 import { asyncRateLimit } from '@tanstack/solid-pacer/async-rate-limiter'
 
 function SearchApp() {
-  const [windowType, setWindowType] = createSignal<'fixed' | 'sliding'>('fixed')
   const [searchText, setSearchText] = createSignal('')
   const [rateLimitedSearchText, setRateLimitedSearchText] = createSignal('')
   const [searchResults, setSearchResults] = createSignal<Array<string>>([])
@@ -19,6 +18,10 @@ function SearchApp() {
     ]
   }
 
+  // asyncRateLimit() returns only the bound maybeExecute, so there is no instance to
+  // reconfigure: these options are fixed for the life of the page. Use
+  // createAsyncRateLimiter if you need to change them later — that example has a live
+  // fixed/sliding toggle driven through setOptions.
   const rateLimitedSetSearch = asyncRateLimit(
     async (value: string) => {
       try {
@@ -35,7 +38,6 @@ function SearchApp() {
     {
       limit: 5,
       window: 5000,
-      windowType: windowType(),
       onReject: (_args, rateLimiter) =>
         console.log(
           `Rate limit exceeded: ${rateLimiter.getMsUntilNextWindow()}ms until next window`,
@@ -46,28 +48,6 @@ function SearchApp() {
   return (
     <div>
       <h1>TanStack Pacer asyncRateLimit Example</h1>
-      <div style={{ display: 'grid', gap: '0.5rem', 'margin-bottom': '1rem' }}>
-        <label>
-          <input
-            type="radio"
-            name="windowType"
-            value="fixed"
-            checked={windowType() === 'fixed'}
-            onChange={() => setWindowType('fixed')}
-          />
-          Fixed Window
-        </label>
-        <label>
-          <input
-            type="radio"
-            name="windowType"
-            value="sliding"
-            checked={windowType() === 'sliding'}
-            onChange={() => setWindowType('sliding')}
-          />
-          Sliding Window
-        </label>
-      </div>
       <div>
         <input
           autofocus

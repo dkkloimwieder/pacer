@@ -1,4 +1,4 @@
-import { For, createSignal } from 'solid-js'
+import { For, createEffect, createSignal } from 'solid-js'
 import { render } from '@solidjs/web'
 import { createAsyncRateLimiter } from '@tanstack/solid-pacer/async-rate-limiter'
 
@@ -39,7 +39,6 @@ function App() {
   const setSearchAsyncRateLimiter = createAsyncRateLimiter(
     handleSearch,
     {
-      windowType: windowType(),
       limit: 2, // Maximum 2 requests
       window: 1000, // per 1 second
       onError: (error) => {
@@ -56,6 +55,15 @@ function App() {
     },
     // Alternative to setSearchAsyncRateLimiter.Subscribe: pass a selector as 3rd arg to track state and subscribe to updates
     // (state) => state,
+  )
+
+  // The options object above is a construction-time snapshot — Solid has no
+  // render pass — so setOptions is what makes the Fixed/Sliding radios live.
+  createEffect(
+    () => windowType(),
+    (next) => {
+      setSearchAsyncRateLimiter.setOptions({ windowType: next })
+    },
   )
 
   // get and name our rate limited function
