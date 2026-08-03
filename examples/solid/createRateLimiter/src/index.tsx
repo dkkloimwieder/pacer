@@ -1,5 +1,5 @@
 import { createSignal } from 'solid-js'
-import { render } from 'solid-js/web'
+import { render } from '@solidjs/web'
 import { createRateLimiter } from '@tanstack/solid-pacer/rate-limiter'
 
 function App1() {
@@ -86,7 +86,7 @@ function App1() {
                   <td>{rateLimiter.getMsUntilNextWindow()}</td>
                 </tr>
                 <tr>
-                  <td colSpan={2}>
+                  <td colspan={2}>
                     <hr />
                   </td>
                 </tr>
@@ -210,7 +210,7 @@ function App2() {
                   <td>{rateLimiter.getMsUntilNextWindow()}</td>
                 </tr>
                 <tr>
-                  <td colSpan={2}>
+                  <td colspan={2}>
                     <hr />
                   </td>
                 </tr>
@@ -318,7 +318,7 @@ function App3() {
             min="0"
             max="100"
             value={limitedValue()}
-            readOnly
+            readonly
             style={{ width: '100%' }}
           />
           <span>{limitedValue()}</span>

@@ -1,5 +1,5 @@
 import { createSignal } from 'solid-js'
-import { render } from 'solid-js/web'
+import { render } from '@solidjs/web'
 import { createDebouncedSignal } from '@tanstack/solid-pacer/debouncer'
 
 function App1() {
@@ -47,7 +47,7 @@ function App1() {
             )}
           </debouncer.Subscribe>
           <tr>
-            <td colSpan={2}>
+            <td colspan={2}>
               <hr />
             </td>
           </tr>
@@ -119,7 +119,7 @@ function App2() {
             )}
           </debouncer.Subscribe>
           <tr>
-            <td colSpan={2}>
+            <td colspan={2}>
               <hr />
             </td>
           </tr>
@@ -186,7 +186,7 @@ function App3() {
             min="0"
             max="100"
             value={debouncedValue()}
-            readOnly
+            readonly
             style={{ width: '100%' }}
           />
           <span>{debouncedValue()}</span>

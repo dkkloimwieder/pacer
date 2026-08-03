@@ -1,5 +1,5 @@
 import { createSignal } from 'solid-js'
-import { render } from 'solid-js/web'
+import { render } from '@solidjs/web'
 import { throttle } from '@tanstack/solid-pacer/throttler'
 
 function App1() {
@@ -131,7 +131,7 @@ function App3() {
             min="0"
             max="100"
             value={throttledValue()}
-            readOnly
+            readonly
             style={{ width: '100%' }}
           />
           <span>{throttledValue()}</span>

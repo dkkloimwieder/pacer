@@ -1,5 +1,5 @@
 import { createSignal } from 'solid-js'
-import { render } from 'solid-js/web'
+import { render } from '@solidjs/web'
 import { rateLimit } from '@tanstack/solid-pacer/rate-limiter'
 
 function App1() {
@@ -219,7 +219,7 @@ function App3() {
             min="0"
             max="100"
             value={rateLimitedValue()}
-            readOnly
+            readonly
             style={{ width: '100%' }}
           />
           <span>{rateLimitedValue()}</span>

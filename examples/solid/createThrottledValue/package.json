@@ -9,12 +9,13 @@
     "test:types": "tsc"
   },
   "dependencies": {
+    "@solidjs/web": "2.0.0-beta.30",
     "@tanstack/solid-pacer": "^0.21.1",
-    "solid-js": "^1.9.12"
+    "solid-js": "2.0.0-beta.30"
   },
   "devDependencies": {
     "vite": "^8.0.12",
-    "vite-plugin-solid": "^2.11.12"
+    "vite-plugin-solid": "3.0.0-next.21"
   },
   "browserslist": {
     "production": [

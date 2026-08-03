@@ -1,5 +1,5 @@
 import { For, createSignal } from 'solid-js'
-import { render } from 'solid-js/web'
+import { render } from '@solidjs/web'
 import { createAsyncDebouncer } from '@tanstack/solid-pacer/async-debouncer'
 
 interface SearchResult {
