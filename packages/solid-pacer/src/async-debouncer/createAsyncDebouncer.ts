@@ -1,6 +1,7 @@
 import { AsyncDebouncer } from '@tanstack/pacer/async-debouncer'
 import { shallow, useSelector } from '@tanstack/solid-store'
-import { onCleanup } from 'solid-js'
+import { createEffect, createMemo, onCleanup } from 'solid-js'
+import { parseFunctionOrValue } from '@tanstack/pacer/utils'
 import { useDefaultPacerOptions } from '../provider/PacerProvider'
 import type { Store } from '@tanstack/solid-store'
 import type { Accessor } from 'solid-js'
@@ -214,6 +215,39 @@ export function createAsyncDebouncer<
   const state = useSelector(asyncDebouncer.store, selector, {
     compare: shallow,
   })
+
+  // A function-form `enabled` stays live as a *gate* — the core re-reads it on
+  // every call — but `status` is derived state written only inside the core's
+  // private #setState, and maybeExecute early-returns before reaching it when
+  // disabled (packages/pacer/src/async-debouncer.ts:321). A Solid component
+  // body runs once and this adapter never re-pushes options, so without the
+  // effect below the published `status` freezes at its constructed value.
+  //
+  // createMemo is load-bearing: a bare two-arg createEffect re-runs its effect
+  // half on every dependency change, not only when the computed value flips, so
+  // an `enabled: () => query().length > 2` would cancel on every keystroke.
+  //
+  // The cast is a type-level formality: `SolidAsyncDebouncer` is
+  // `Omit<AsyncDebouncer, 'store'>` and so loses the class's `#private` brand,
+  // but this is the very instance the constructor returned, which is what a
+  // caller's predicate expects to receive.
+  const enabled = createMemo(() =>
+    parseFunctionOrValue(
+      asyncDebouncer.options.enabled,
+      asyncDebouncer as unknown as AsyncDebouncer<TFn>,
+    ),
+  )
+  createEffect(
+    () => enabled(),
+    (_next, prev) => {
+      // `prev` is undefined only on the mount run; skipping it leaves a
+      // caller-supplied initialState intact. cancel() is the sole public core
+      // call that writes state unconditionally, which is what forces `status`
+      // to be recomputed — and on the disabling edge it is exactly what the
+      // core's own setOptions does.
+      if (prev !== undefined) asyncDebouncer.cancel()
+    },
+  )
 
   onCleanup(() => {
     if (mergedOptions.onUnmount) {

@@ -1,7 +1,12 @@
 import { describe, expect, it } from 'vitest'
 import { DEV, createEffect, createSignal } from 'solid-js'
 import { render } from '@solidjs/testing-library'
-import { createDebouncer, createRateLimiter } from '../src/index'
+import {
+  createAsyncDebouncer,
+  createAsyncThrottler,
+  createDebouncer,
+  createRateLimiter,
+} from '../src/index'
 import { settle } from './utils/reactive'
 
 /**
@@ -44,14 +49,11 @@ describe('option reactivity under Solid 2', () => {
     expect(codes(capture.stop())).toEqual(['STRICT_READ_UNTRACKED'])
   })
 
-  it('publishes a stale `status` once a function-form `enabled` flips false', () => {
-    // CHARACTERISATION, not an endorsement — this pins the defect the
-    // diagnostic above is pointing at, so that fixing it shows up as a failing
-    // test rather than a silent behaviour change.
-    //
+  it('keeps `status` accurate when a function-form `enabled` flips false (pacer-avi)', () => {
     // Debouncer.maybeExecute early-returns before ever reaching #setState when
-    // disabled, and nothing in solid-pacer calls setOptions, so the derived
-    // `status` is never recomputed after construction.
+    // disabled, so the core alone never recomputes the derived `status` — and a
+    // Solid component body runs once, so no option is ever re-pushed. The
+    // adapter tracks `enabled` through a memo and forces the recompute.
     const [n, setN] = createSignal(5) // enabled: 5 > 2
     let debouncer: any
 
@@ -72,12 +74,104 @@ describe('option reactivity under Solid 2', () => {
 
     setN(0) // now disabled
     settle()
-    expect(debouncer.state().status).toBe('pending') // <- stale, should be 'disabled'
-
-    debouncer.maybeExecute() // early-returns, so still no state write
-    settle()
-    expect(debouncer.state().status).toBe('pending') // <- still stale
+    expect(debouncer.state().status).toBe('disabled')
   })
+
+  it('recovers `status` when a function-form `enabled` flips back true', () => {
+    // The direction an adapter-side `setOptions` push does NOT repair: core
+    // setOptions writes state only via cancel(), which it calls on the
+    // disabling edge only (packages/pacer/src/debouncer.ts:179). Re-enabling
+    // takes the other branch and writes nothing, so this needs the explicit
+    // cancel() the adapter issues on every transition.
+    const [n, setN] = createSignal(0) // starts disabled
+    let debouncer: any
+
+    function Harness() {
+      debouncer = createDebouncer(
+        () => {},
+        { wait: 10, enabled: () => n() > 2 },
+        (s) => ({ status: s.status }),
+      )
+      return <div />
+    }
+    render(() => <Harness />)
+    settle()
+    expect(debouncer.state().status).toBe('disabled')
+
+    setN(5)
+    settle()
+    expect(debouncer.state().status).toBe('idle')
+  })
+
+  it('does not disturb a pending debounce while `enabled` stays true', () => {
+    // The regression the createMemo exists to prevent. A bare two-arg
+    // createEffect re-runs its effect half on every dependency change, not only
+    // when the computed value flips — measured [false,false,true,true,true] for
+    // five writes to the underlying signal. Without the memo, this test's
+    // fourth character would cancel() the in-flight debounce and drop `status`
+    // back to 'idle', i.e. the fix would break the thing it reports on.
+    const [q, setQ] = createSignal('abc') // already enabled: 3 > 2
+    let debouncer: any
+
+    function Harness() {
+      debouncer = createDebouncer(
+        () => {},
+        { wait: 10_000, enabled: () => q().length > 2 },
+        (s) => ({ status: s.status }),
+      )
+      return <div />
+    }
+    render(() => <Harness />)
+    settle()
+
+    debouncer.maybeExecute()
+    settle()
+    expect(debouncer.state().status).toBe('pending')
+
+    setQ('abcd') // predicate still true — must be a no-op for the debouncer
+    settle()
+    expect(debouncer.state().status).toBe('pending')
+
+    setQ('abcde')
+    settle()
+    expect(debouncer.state().status).toBe('pending')
+  })
+
+  it.each([
+    ['createAsyncDebouncer', createAsyncDebouncer, { wait: 10 }],
+    ['createAsyncThrottler', createAsyncThrottler, { wait: 10 }],
+  ])(
+    'keeps `status` accurate for %s, whose maybeExecute also gates before #setState',
+    (_name, create, opts) => {
+      // AsyncDebouncer (async-debouncer.ts:321) and AsyncThrottler
+      // (async-throttler.ts:341) share the Debouncer's early-return shape, so
+      // they carry the same defect and the same adapter-side fix. Sync
+      // Throttler and both rate limiters write state *before* gating and are
+      // therefore unaffected — see the rate-limiter test below.
+      const [n, setN] = createSignal(0)
+      let instance: any
+
+      function Harness() {
+        instance = (create as any)(
+          async () => {},
+          { ...opts, enabled: () => n() > 2 },
+          (s: any) => ({ status: s.status }),
+        )
+        return <div />
+      }
+      render(() => <Harness />)
+      settle()
+      expect(instance.state().status).toBe('disabled')
+
+      setN(5)
+      settle()
+      expect(instance.state().status).toBe('idle')
+
+      setN(0)
+      settle()
+      expect(instance.state().status).toBe('disabled')
+    },
+  )
 
   it('keeps `status` live for a rate limiter, which writes state before gating', () => {
     // Contrast with the debouncer above: RateLimiter.maybeExecute calls
