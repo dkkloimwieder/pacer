@@ -1,9 +1,10 @@
 import { Batcher } from '@tanstack/pacer/batcher'
 import { shallow, useSelector } from '@tanstack/solid-store'
-import { createEffect, onCleanup } from 'solid-js'
+import { onCleanup } from 'solid-js'
 import { useDefaultPacerOptions } from '../provider/PacerProvider'
 import type { Store } from '@tanstack/solid-store'
-import type { Accessor, JSX } from 'solid-js'
+import type { Accessor } from 'solid-js'
+import type { JSX } from '@solidjs/web'
 import type { BatcherOptions, BatcherState } from '@tanstack/pacer/batcher'
 
 export interface SolidBatcherOptions<
@@ -182,18 +183,21 @@ export function createBatcher<TValue, TSelected = {}>(
 
   const state = useSelector(batcher.store, selector, { compare: shallow })
 
-  createEffect(() => {
-    onCleanup(() => {
-      if (mergedOptions.onUnmount) {
-        mergedOptions.onUnmount(batcher)
-      } else {
-        batcher.cancel()
-      }
-    })
+  onCleanup(() => {
+    if (mergedOptions.onUnmount) {
+      mergedOptions.onUnmount(batcher)
+    } else {
+      batcher.cancel()
+    }
   })
 
-  return {
-    ...batcher,
-    state,
-  } as SolidBatcher<TValue, TSelected>
+  // Attach the reactive selector as `state` rather than spreading the
+  // instance into a plain object: a spread copies own enumerable properties
+  // only and would drop any prototype member the core adds later.
+  Object.defineProperty(batcher, 'state', {
+    get: () => state,
+    enumerable: true,
+  })
+
+  return batcher
 }

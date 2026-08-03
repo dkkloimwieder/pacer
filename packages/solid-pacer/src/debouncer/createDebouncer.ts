@@ -1,9 +1,10 @@
 import { Debouncer } from '@tanstack/pacer/debouncer'
-import { createEffect, onCleanup } from 'solid-js'
+import { onCleanup } from 'solid-js'
 import { shallow, useSelector } from '@tanstack/solid-store'
 import { useDefaultPacerOptions } from '../provider/PacerProvider'
 import type { Store } from '@tanstack/solid-store'
-import type { Accessor, JSX } from 'solid-js'
+import type { Accessor } from 'solid-js'
+import type { JSX } from '@solidjs/web'
 import type { AnyFunction } from '@tanstack/pacer/types'
 import type {
   DebouncerOptions,
@@ -184,18 +185,21 @@ export function createDebouncer<TFn extends AnyFunction, TSelected = {}>(
     compare: shallow,
   })
 
-  createEffect(() => {
-    onCleanup(() => {
-      if (mergedOptions.onUnmount) {
-        mergedOptions.onUnmount(asyncDebouncer)
-      } else {
-        asyncDebouncer.cancel()
-      }
-    })
+  onCleanup(() => {
+    if (mergedOptions.onUnmount) {
+      mergedOptions.onUnmount(asyncDebouncer)
+    } else {
+      asyncDebouncer.cancel()
+    }
   })
 
-  return {
-    ...asyncDebouncer,
-    state,
-  } as SolidDebouncer<TFn, TSelected> // omit `store` in favor of `state`
+  // Attach the reactive selector as `state` rather than spreading the
+  // instance into a plain object: a spread copies own enumerable properties
+  // only and would drop any prototype member the core adds later.
+  Object.defineProperty(asyncDebouncer, 'state', {
+    get: () => state,
+    enumerable: true,
+  })
+
+  return asyncDebouncer
 }

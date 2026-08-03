@@ -74,9 +74,16 @@ export function createThrottledValue<TValue, TSelected = {}>(
     selector,
   )
 
-  createEffect(() => {
-    setThrottledValue(value() as any)
-  })
+  // Solid 2 splits createEffect into a tracked compute half and an untracked
+  // effect half. Every reactive read must sit in the compute half, and the
+  // effect half must be a braced block: a returned non-function value lands in
+  // the cleanup slot and permanently halts reactivity (REACTIVITY_HALTED).
+  createEffect(
+    () => value(),
+    (next) => {
+      setThrottledValue(next as any)
+    },
+  )
 
   return [throttledValue, throttler]
 }

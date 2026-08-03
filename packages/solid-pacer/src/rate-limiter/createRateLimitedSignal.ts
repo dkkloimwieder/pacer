@@ -101,7 +101,18 @@ export function createRateLimitedSignal<TValue, TSelected = {}>(
   Setter<TValue>,
   SolidRateLimiter<Setter<TValue>, TSelected>,
 ] {
-  const [rateLimitedValue, setRateLimitedValue] = createSignal<TValue>(value)
+  // `ownedWrite` is required: RateLimiter executes immediately while under the
+  // limit, so the first `maybeExecute` runs this setter synchronously in the
+  // caller's scope — including the effect half in createRateLimitedValue, where
+  // writing a plain signal is a hard throw (REACTIVE_WRITE_IN_OWNED_SCOPE).
+  const [rateLimitedValue, setRateLimitedValue] = createSignal<TValue>(
+    // createSignal's value overload takes Exclude<T, Function>, since a bare
+    // function argument is reserved for the compute form. The bare `Function`
+    // here mirrors Solid's own signature — narrowing it would stop matching.
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
+    value as Exclude<TValue, Function>,
+    { ownedWrite: true },
+  )
 
   const rateLimiter = createRateLimiter(
     setRateLimitedValue,
@@ -109,9 +120,12 @@ export function createRateLimitedSignal<TValue, TSelected = {}>(
     selector,
   )
 
+  // `maybeExecute` returns boolean, but Solid 2's `Setter<in out T>` is
+  // invariant and its overloads return the written value, so this needs a
+  // double cast.
   return [
     rateLimitedValue,
-    rateLimiter.maybeExecute as Setter<TValue>,
+    rateLimiter.maybeExecute as unknown as Setter<TValue>,
     rateLimiter,
   ]
 }

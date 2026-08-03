@@ -55,9 +55,12 @@ import type { DebouncerState } from '@tanstack/pacer/debouncer'
  * );
  *
  * // debouncedQuery will update 500ms after searchQuery stops changing
- * createEffect(() => {
- *   fetchSearchResults(debouncedQuery());
- * });
+ * createEffect(
+ *   () => debouncedQuery(),
+ *   (query) => {
+ *     fetchSearchResults(query);
+ *   },
+ * );
  *
  * // Access debouncer state via signals
  * console.log('Is pending:', debouncer.state().isPending);
@@ -77,9 +80,16 @@ export function createDebouncedValue<TValue, TSelected = {}>(
     selector,
   )
 
-  createEffect(() => {
-    setDebouncedValue(value() as any)
-  })
+  // Solid 2 splits createEffect into a tracked compute half and an untracked
+  // effect half. Every reactive read must sit in the compute half, and the
+  // effect half must be a braced block: a returned non-function value lands in
+  // the cleanup slot and permanently halts reactivity (REACTIVITY_HALTED).
+  createEffect(
+    () => value(),
+    (next) => {
+      setDebouncedValue(next as any)
+    },
+  )
 
   return [debouncedValue, debouncer]
 }

@@ -1,9 +1,10 @@
 import { Queuer } from '@tanstack/pacer/queuer'
 import { shallow, useSelector } from '@tanstack/solid-store'
-import { createEffect, onCleanup } from 'solid-js'
+import { onCleanup } from 'solid-js'
 import { useDefaultPacerOptions } from '../provider/PacerProvider'
 import type { Store } from '@tanstack/solid-store'
-import type { Accessor, JSX } from 'solid-js'
+import type { Accessor } from 'solid-js'
+import type { JSX } from '@solidjs/web'
 import type { QueuerOptions, QueuerState } from '@tanstack/pacer/queuer'
 
 export interface SolidQueuerOptions<
@@ -182,18 +183,21 @@ export function createQueuer<TValue, TSelected = {}>(
 
   const state = useSelector(queuer.store, selector, { compare: shallow })
 
-  createEffect(() => {
-    onCleanup(() => {
-      if (mergedOptions.onUnmount) {
-        mergedOptions.onUnmount(queuer)
-      } else {
-        queuer.stop()
-      }
-    })
+  onCleanup(() => {
+    if (mergedOptions.onUnmount) {
+      mergedOptions.onUnmount(queuer)
+    } else {
+      queuer.stop()
+    }
   })
 
-  return {
-    ...queuer,
-    state,
-  } as SolidQueuer<TValue, TSelected> // omit `store` in favor of `state`
+  // Attach the reactive selector as `state` rather than spreading the
+  // instance into a plain object: a spread copies own enumerable properties
+  // only and would drop any prototype member the core adds later.
+  Object.defineProperty(queuer, 'state', {
+    get: () => state,
+    enumerable: true,
+  })
+
+  return queuer
 }

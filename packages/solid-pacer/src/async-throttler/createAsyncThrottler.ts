@@ -1,9 +1,10 @@
-import { createEffect, onCleanup } from 'solid-js'
+import { onCleanup } from 'solid-js'
 import { AsyncThrottler } from '@tanstack/pacer/async-throttler'
 import { shallow, useSelector } from '@tanstack/solid-store'
 import { useDefaultPacerOptions } from '../provider/PacerProvider'
 import type { Store } from '@tanstack/solid-store'
-import type { Accessor, JSX } from 'solid-js'
+import type { Accessor } from 'solid-js'
+import type { JSX } from '@solidjs/web'
 import type { AnyAsyncFunction } from '@tanstack/pacer/types'
 import type {
   AsyncThrottlerOptions,
@@ -207,19 +208,22 @@ export function createAsyncThrottler<
     compare: shallow,
   })
 
-  createEffect(() => {
-    onCleanup(() => {
-      if (mergedOptions.onUnmount) {
-        mergedOptions.onUnmount(asyncThrottler)
-      } else {
-        asyncThrottler.cancel()
-        asyncThrottler.abort()
-      }
-    })
+  onCleanup(() => {
+    if (mergedOptions.onUnmount) {
+      mergedOptions.onUnmount(asyncThrottler)
+    } else {
+      asyncThrottler.cancel()
+      asyncThrottler.abort()
+    }
   })
 
-  return {
-    ...asyncThrottler,
-    state,
-  } as SolidAsyncThrottler<TFn, TSelected>
+  // Attach the reactive selector as `state` rather than spreading the
+  // instance into a plain object: a spread copies own enumerable properties
+  // only and would drop any prototype member the core adds later.
+  Object.defineProperty(asyncThrottler, 'state', {
+    get: () => state,
+    enumerable: true,
+  })
+
+  return asyncThrottler
 }

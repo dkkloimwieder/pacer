@@ -1,5 +1,5 @@
 import { createContext, useContext } from 'solid-js'
-import type { JSX } from 'solid-js'
+import type { JSX } from '@solidjs/web'
 import type {
   AnyAsyncFunction,
   AnyFunction,
@@ -46,11 +46,8 @@ export function PacerProvider(props: PacerProviderProps) {
     defaultOptions: props.defaultOptions ?? DEFAULT_OPTIONS,
   }
 
-  return (
-    <PacerContext.Provider value={contextValue}>
-      {props.children}
-    </PacerContext.Provider>
-  )
+  // Solid 2: the context object is itself the provider component.
+  return <PacerContext value={contextValue}>{props.children}</PacerContext>
 }
 
 export function usePacerContext() {

@@ -75,7 +75,24 @@ export function createThrottledSignal<TValue, TSelected = {}>(
   Setter<TValue>,
   SolidThrottler<Setter<TValue>, TSelected>,
 ] {
-  const [throttledValue, setThrottledValue] = createSignal<TValue>(value)
+  // `ownedWrite` is required: Throttler defaults to `leading: true`, so the
+  // very first `maybeExecute` runs this setter synchronously in the caller's
+  // scope — including the effect half in createThrottledValue, where writing a
+  // plain signal is a hard throw in Solid 2 (REACTIVE_WRITE_IN_OWNED_SCOPE).
+  const [throttledValue, setThrottledValue] = createSignal<TValue>(
+    // createSignal's value overload takes Exclude<T, Function>, since a bare
+    // function argument is reserved for the compute form. The bare `Function`
+    // here mirrors Solid's own signature — narrowing it would stop matching.
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
+    value as Exclude<TValue, Function>,
+    { ownedWrite: true },
+  )
   const throttler = createThrottler(setThrottledValue, initialOptions, selector)
-  return [throttledValue, throttler.maybeExecute as Setter<TValue>, throttler]
+  // `maybeExecute` returns void, but Solid 2's `Setter<in out T>` is invariant
+  // and its overloads return the written value, so this needs a double cast.
+  return [
+    throttledValue,
+    throttler.maybeExecute as unknown as Setter<TValue>,
+    throttler,
+  ]
 }

@@ -1,9 +1,10 @@
 import { RateLimiter } from '@tanstack/pacer/rate-limiter'
-import { createEffect, onCleanup } from 'solid-js'
+import { onCleanup } from 'solid-js'
 import { shallow, useSelector } from '@tanstack/solid-store'
 import { useDefaultPacerOptions } from '../provider/PacerProvider'
 import type { Store } from '@tanstack/solid-store'
-import type { Accessor, JSX } from 'solid-js'
+import type { Accessor } from 'solid-js'
+import type { JSX } from '@solidjs/web'
 import type { AnyFunction } from '@tanstack/pacer/types'
 import type {
   RateLimiterOptions,
@@ -211,16 +212,19 @@ export function createRateLimiter<TFn extends AnyFunction, TSelected = {}>(
 
   const state = useSelector(rateLimiter.store, selector, { compare: shallow })
 
-  createEffect(() => {
-    onCleanup(() => {
-      if (mergedOptions.onUnmount) {
-        mergedOptions.onUnmount(rateLimiter)
-      }
-    })
+  onCleanup(() => {
+    if (mergedOptions.onUnmount) {
+      mergedOptions.onUnmount(rateLimiter)
+    }
   })
 
-  return {
-    ...rateLimiter,
-    state,
-  } as SolidRateLimiter<TFn, TSelected> // omit `store` in favor of `state`
+  // Attach the reactive selector as `state` rather than spreading the
+  // instance into a plain object: a spread copies own enumerable properties
+  // only and would drop any prototype member the core adds later.
+  Object.defineProperty(rateLimiter, 'state', {
+    get: () => state,
+    enumerable: true,
+  })
+
+  return rateLimiter
 }

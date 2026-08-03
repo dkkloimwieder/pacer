@@ -84,9 +84,27 @@ export function createDebouncedSignal<TValue, TSelected = {}>(
   Setter<TValue>,
   SolidDebouncer<Setter<TValue>, TSelected>,
 ] {
-  const [debouncedValue, setDebouncedValue] = createSignal<TValue>(value)
+  // `ownedWrite` is required: the debouncer's fn is this setter, and with
+  // `leading: true` it fires synchronously from whatever scope called
+  // `maybeExecute` — including a component body or the effect half in
+  // createDebouncedValue. Writing a plain signal from an owned scope is a hard
+  // throw in Solid 2 (REACTIVE_WRITE_IN_OWNED_SCOPE).
+  const [debouncedValue, setDebouncedValue] = createSignal<TValue>(
+    // createSignal's value overload takes Exclude<T, Function>, since a bare
+    // function argument is reserved for the compute form. The bare `Function`
+    // here mirrors Solid's own signature — narrowing it would stop matching.
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
+    value as Exclude<TValue, Function>,
+    { ownedWrite: true },
+  )
 
   const debouncer = createDebouncer(setDebouncedValue, initialOptions, selector)
 
-  return [debouncedValue, debouncer.maybeExecute as Setter<TValue>, debouncer]
+  // `maybeExecute` returns void, but Solid 2's `Setter<in out T>` is invariant
+  // and its overloads return the written value, so this needs a double cast.
+  return [
+    debouncedValue,
+    debouncer.maybeExecute as unknown as Setter<TValue>,
+    debouncer,
+  ]
 }
