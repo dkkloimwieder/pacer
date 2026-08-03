@@ -43,6 +43,13 @@ export interface SolidQueuer<TValue, TSelected = {}> extends Omit<
    * Reactive state that will be updated when the queuer state changes
    *
    * Use this instead of `queuer.store.state`
+   *
+   * Reads settle on a microtask. Inside JSX, a memo, or an effect compute
+   * half this is invisible — those re-run when the graph settles. An
+   * imperative read in the same tick as the change still returns the
+   * previous value; call `flush()` from `solid-js` first if you need the
+   * new one. This adapter does not enable useSelector's `settleOnRead`,
+   * matching @tanstack/solid-store's own default.
    */
   readonly state: Accessor<Readonly<TSelected>>
   /**
