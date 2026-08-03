@@ -30,8 +30,6 @@
     "test:lib:dev": "pnpm test:lib --watch",
     "test:types": "tsc",
     "test:build": "node ./scripts/check-ssr-safe-dist.mjs",
-    "test:browser": "node ./scripts/browser-verify/verify.mjs",
-    "test:browser:unmount": "node ./scripts/browser-verify/unmount.mjs",
     "build": "tsdown"
   },
   "type": "module",

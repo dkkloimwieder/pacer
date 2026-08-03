@@ -9,11 +9,6 @@
     "packages/react-pacer": {
       "ignore": []
     },
-    "packages/solid-pacer": {
-      "ignore": [
-        "scripts/browser-verify/unmount-app/**"
-      ]
-    },
     "packages/react-pacer-devtools": {
       "ignoreDependencies": ["csstype"]
     },
