@@ -4419,16 +4419,16 @@ importers:
     dependencies:
       '@tanstack/devtools-ui':
         specifier: 0.5.2
-        version: 0.5.2(csstype@3.2.3)(solid-js@1.9.13)
+        version: 0.5.2(csstype@3.2.3)(solid-js@1.9.14)
       '@tanstack/devtools-utils':
         specifier: ^0.5.0
-        version: 0.5.0(@angular/core@21.2.17(@angular/compiler@21.2.17)(rxjs@7.8.2))(@types/react@19.2.15)(preact@10.29.2)(react@19.2.6)(solid-js@1.9.13)
+        version: 0.5.0(@angular/core@21.2.17(@angular/compiler@21.2.17)(rxjs@7.8.2))(@types/react@19.2.15)(preact@10.29.2)(react@19.2.6)(solid-js@1.9.14)
       '@tanstack/pacer':
         specifier: workspace:*
         version: link:../pacer
       '@tanstack/solid-store':
         specifier: ^0.11.0
-        version: 0.11.0(solid-js@1.9.13)
+        version: 0.11.0(solid-js@1.9.14)
       clsx:
         specifier: ^2.1.1
         version: 2.1.1
@@ -4442,18 +4442,18 @@ importers:
         specifier: ^2.1.19
         version: 2.1.19(csstype@3.2.3)
       solid-js:
-        specifier: ^1.9.12
-        version: 1.9.13
+        specifier: ^1.9.14
+        version: 1.9.14
     devDependencies:
       rolldown-plugin-solid:
         specifier: ^0.2.1
-        version: 0.2.1(rolldown@1.0.3)(solid-js@1.9.13)(supports-color@7.2.0)
+        version: 0.2.1(rolldown@1.0.3)(solid-js@1.9.14)(supports-color@7.2.0)
       tsdown:
         specifier: ^0.22.0
         version: 0.22.1(oxc-resolver@11.20.0)(publint@0.3.21)(typescript@6.0.3)(unrun@0.3.1)
       vite-plugin-solid:
         specifier: ^2.11.12
-        version: 2.11.12(@testing-library/jest-dom@6.9.1)(solid-js@1.9.13)(supports-color@7.2.0)(vite@8.0.16(@types/node@25.7.0)(esbuild@0.28.0)(jiti@2.7.0)(sass@1.97.3)(yaml@2.9.0))
+        version: 2.11.12(@testing-library/jest-dom@6.9.1)(solid-js@1.9.14)(supports-color@7.2.0)(vite@8.0.16(@types/node@25.7.0)(esbuild@0.28.0)(jiti@2.7.0)(sass@1.97.3)(yaml@2.9.0))
 
   packages/pacer-lite:
     devDependencies:
@@ -9807,21 +9807,11 @@ packages:
     resolution: {integrity: sha512-1gnZf7DFcoIcajTjTwjwuDjzuz4PPcY2StKPlsGAQ1+YH20IRVrBaXSWmdjowTJ6u8Rc01PoYOGHXfP1mYcZNQ==}
     engines: {node: '>= 18'}
 
-  seroval-plugins@1.5.1:
-    resolution: {integrity: sha512-4FbuZ/TMl02sqv0RTFexu0SP6V+ywaIe5bAWCCEik0fk17BhALgwvUDVF7e3Uvf9pxmwCEJsRPmlkUE6HdzLAw==}
-    engines: {node: '>=10'}
-    peerDependencies:
-      seroval: ^1.0
-
   seroval-plugins@1.5.6:
     resolution: {integrity: sha512-HXuLAX2pu/UByPpaeo/TaMfvMIi+1QqIoPJYCcAtU8QkVNwgR6MPlGuCQTErV1JwraaMbYaWVIBX7mppzGLATQ==}
     engines: {node: '>=10'}
     peerDependencies:
       seroval: ^1.0
-
-  seroval@1.5.1:
-    resolution: {integrity: sha512-OwrZRZAfhHww0WEnKHDY8OM0U/Qs8OTfIDWhUD4BLpNJUfXK4cGmjiagGze086m+mhI+V2nD0gfbHEnJjb9STA==}
-    engines: {node: '>=10'}
 
   seroval@1.5.6:
     resolution: {integrity: sha512-rVQVWjjSvlINzaQPZH5JFqsqEsIWdTxY3iJZCnTL/5gQbXIRooVZKI60tVCkOVfzcRPejboxO2t0P89dg5mQaA==}
@@ -9964,9 +9954,6 @@ packages:
   socks@2.8.7:
     resolution: {integrity: sha512-HLpt+uLy/pxB+bum/9DzAgiKS8CX1EvbWxI4zlmgGCExImLdiad2iCwXT5Z4c9c3Eq8rP2318mPW2c+QbtjK8A==}
     engines: {node: '>= 10.0.0', npm: '>= 3.0.0'}
-
-  solid-js@1.9.13:
-    resolution: {integrity: sha512-6hJeJMOcEX8ktqjpDoJZEmld3ijvcvWBDtiXBm7f4332SiFN66QeAQI1REQshvyUoISsSeJ4PHDauKYbwao9JQ==}
 
   solid-js@1.9.14:
     resolution: {integrity: sha512-sAEXC0Kk0S1EDg+8ysEWJDbYhA3RRoEjwuySUGlKIemeo0I5YZfOyumNjNs9Sv3y2nmhD+0rW66ag2HsMuQiGQ==}
@@ -12890,15 +12877,6 @@ snapshots:
 
   '@tanstack/devtools-event-client@0.4.3': {}
 
-  '@tanstack/devtools-ui@0.5.2(csstype@3.2.3)(solid-js@1.9.13)':
-    dependencies:
-      clsx: 2.1.1
-      dayjs: 1.11.21
-      goober: 2.1.19(csstype@3.2.3)
-      solid-js: 1.9.13
-    transitivePeerDependencies:
-      - csstype
-
   '@tanstack/devtools-ui@0.5.2(csstype@3.2.3)(solid-js@1.9.14)':
     dependencies:
       clsx: 2.1.1
@@ -12907,14 +12885,6 @@ snapshots:
       solid-js: 1.9.14
     transitivePeerDependencies:
       - csstype
-
-  '@tanstack/devtools-utils@0.5.0(@angular/core@21.2.17(@angular/compiler@21.2.17)(rxjs@7.8.2))(@types/react@19.2.15)(preact@10.29.2)(react@19.2.6)(solid-js@1.9.13)':
-    optionalDependencies:
-      '@angular/core': 21.2.17(@angular/compiler@21.2.17)(rxjs@7.8.2)
-      '@types/react': 19.2.15
-      preact: 10.29.2
-      react: 19.2.6
-      solid-js: 1.9.13
 
   '@tanstack/devtools-utils@0.5.0(@angular/core@21.2.17(@angular/compiler@21.2.17)(rxjs@7.8.2))(@types/react@19.2.15)(preact@10.29.2)(react@19.2.6)(solid-js@1.9.14)':
     optionalDependencies:
@@ -13014,10 +12984,10 @@ snapshots:
       react-dom: 19.2.6(react@19.2.6)
       use-sync-external-store: 1.6.0(react@19.2.6)
 
-  '@tanstack/solid-store@0.11.0(solid-js@1.9.13)':
+  '@tanstack/solid-store@0.11.0(solid-js@1.9.14)':
     dependencies:
       '@tanstack/store': 0.11.0
-      solid-js: 1.9.13
+      solid-js: 1.9.14
 
   '@tanstack/solid-store@https://codeload.github.com/dkkloimwieder/store/tar.gz/9709dab20a007c3e9dc2cd8cee0960d57e38cbea#path:/packages/solid-store(@solidjs/web@2.0.0-beta.30(solid-js@2.0.0-beta.30))(solid-js@2.0.0-beta.30)':
     dependencies:
@@ -13560,13 +13530,6 @@ snapshots:
   babel-plugin-transform-hook-names@1.0.2(@babel/core@7.29.0(supports-color@7.2.0)):
     dependencies:
       '@babel/core': 7.29.0(supports-color@7.2.0)
-
-  babel-preset-solid@1.9.12(@babel/core@7.29.0(supports-color@7.2.0))(solid-js@1.9.13):
-    dependencies:
-      '@babel/core': 7.29.0(supports-color@7.2.0)
-      babel-plugin-jsx-dom-expressions: 0.40.6(@babel/core@7.29.0(supports-color@7.2.0))
-    optionalDependencies:
-      solid-js: 1.9.13
 
   babel-preset-solid@1.9.12(@babel/core@7.29.0(supports-color@7.2.0))(solid-js@1.9.14):
     dependencies:
@@ -15907,13 +15870,13 @@ snapshots:
     transitivePeerDependencies:
       - oxc-resolver
 
-  rolldown-plugin-solid@0.2.1(rolldown@1.0.3)(solid-js@1.9.13)(supports-color@7.2.0):
+  rolldown-plugin-solid@0.2.1(rolldown@1.0.3)(solid-js@1.9.14)(supports-color@7.2.0):
     dependencies:
       '@babel/core': 7.29.0(supports-color@7.2.0)
       '@babel/preset-typescript': 7.28.5(@babel/core@7.29.0(supports-color@7.2.0))(supports-color@7.2.0)
-      babel-preset-solid: 1.9.12(@babel/core@7.29.0(supports-color@7.2.0))(solid-js@1.9.13)
+      babel-preset-solid: 1.9.12(@babel/core@7.29.0(supports-color@7.2.0))(solid-js@1.9.14)
       rolldown: 1.0.3
-      solid-js: 1.9.13
+      solid-js: 1.9.14
     transitivePeerDependencies:
       - supports-color
 
@@ -16059,15 +16022,9 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  seroval-plugins@1.5.1(seroval@1.5.1):
-    dependencies:
-      seroval: 1.5.1
-
   seroval-plugins@1.5.6(seroval@1.5.6):
     dependencies:
       seroval: 1.5.6
-
-  seroval@1.5.1: {}
 
   seroval@1.5.6: {}
 
@@ -16227,12 +16184,6 @@ snapshots:
       ip-address: 10.1.0
       smart-buffer: 4.2.0
 
-  solid-js@1.9.13:
-    dependencies:
-      csstype: 3.2.3
-      seroval: 1.5.1
-      seroval-plugins: 1.5.1(seroval@1.5.1)
-
   solid-js@1.9.14:
     dependencies:
       csstype: 3.2.3
@@ -16245,15 +16196,6 @@ snapshots:
       csstype: 3.2.3
       seroval: 1.5.6
       seroval-plugins: 1.5.6(seroval@1.5.6)
-
-  solid-refresh@0.6.3(solid-js@1.9.13)(supports-color@7.2.0):
-    dependencies:
-      '@babel/generator': 7.29.1
-      '@babel/helper-module-imports': 7.28.6(supports-color@7.2.0)
-      '@babel/types': 7.29.0
-      solid-js: 1.9.13
-    transitivePeerDependencies:
-      - supports-color
 
   solid-refresh@0.6.3(solid-js@1.9.14)(supports-color@7.2.0):
     dependencies:
@@ -16603,21 +16545,6 @@ snapshots:
   validate-npm-package-name@7.0.2: {}
 
   vary@1.1.2: {}
-
-  vite-plugin-solid@2.11.12(@testing-library/jest-dom@6.9.1)(solid-js@1.9.13)(supports-color@7.2.0)(vite@8.0.16(@types/node@25.7.0)(esbuild@0.28.0)(jiti@2.7.0)(sass@1.97.3)(yaml@2.9.0)):
-    dependencies:
-      '@babel/core': 7.29.0(supports-color@7.2.0)
-      '@types/babel__core': 7.20.5
-      babel-preset-solid: 1.9.12(@babel/core@7.29.0(supports-color@7.2.0))(solid-js@1.9.13)
-      merge-anything: 5.1.7
-      solid-js: 1.9.13
-      solid-refresh: 0.6.3(solid-js@1.9.13)(supports-color@7.2.0)
-      vite: 8.0.16(@types/node@25.7.0)(esbuild@0.28.0)(jiti@2.7.0)(sass@1.97.3)(yaml@2.9.0)
-      vitefu: 1.1.2(vite@8.0.16(@types/node@25.7.0)(esbuild@0.28.0)(jiti@2.7.0)(sass@1.97.3)(yaml@2.9.0))
-    optionalDependencies:
-      '@testing-library/jest-dom': 6.9.1
-    transitivePeerDependencies:
-      - supports-color
 
   vite-plugin-solid@2.11.12(@testing-library/jest-dom@6.9.1)(solid-js@1.9.14)(supports-color@7.2.0)(vite@8.0.16(@types/node@25.7.0)(esbuild@0.28.0)(jiti@2.7.0)(sass@1.97.3)(yaml@2.9.0)):
     dependencies:
