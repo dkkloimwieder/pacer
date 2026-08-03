@@ -1,4 +1,4 @@
-import { createEffect } from 'solid-js'
+import { createEffect, untrack } from 'solid-js'
 import { createRateLimitedSignal } from './createRateLimitedSignal'
 import type {
   SolidRateLimiter,
@@ -100,7 +100,18 @@ export function createRateLimitedValue<TValue, TSelected = {}>(
   selector?: (state: RateLimiterState) => TSelected,
 ): [Accessor<TValue>, SolidRateLimiter<Setter<TValue>, TSelected>] {
   const [rateLimitedValue, setRateLimitedValue, rateLimiter] =
-    createRateLimitedSignal(value(), initialOptions, selector)
+    createRateLimitedSignal(
+      // Seed only — the ongoing mirror is the tracked effect below. Reading the
+      // accessor bare here is an owned, untracked read, which Solid 2 reports
+      // as [STRICT_READ_UNTRACKED] once per consumer of this primitive. Here
+      // the diagnostic is a false positive rather than a staleness bug: the
+      // value does keep updating, via the effect. Untrack the seeding read
+      // deliberately so callers do not have to reason about a warning that
+      // does not apply.
+      untrack(value),
+      initialOptions,
+      selector,
+    )
 
   // Solid 2 splits createEffect into a tracked compute half and an untracked
   // effect half. Every reactive read must sit in the compute half, and the

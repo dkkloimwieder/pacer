@@ -1,7 +1,13 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { createEffect } from 'solid-js'
+import { createEffect, createSignal } from 'solid-js'
 import { render } from '@solidjs/testing-library'
-import { createDebouncer, createQueuer } from '../src/index'
+import {
+  createDebouncedValue,
+  createDebouncer,
+  createQueuer,
+  createRateLimitedValue,
+  createThrottledValue,
+} from '../src/index'
 import { createEffectTestRoot, settle } from './utils/reactive'
 
 const noop = () => {}
@@ -130,12 +136,19 @@ describe('no Solid dev diagnostics during ordinary use', () => {
 
   it('constructing, driving and unmounting a primitive is diagnostic-free', () => {
     let debouncer: any
-    const { unmount } = render(() => {
+
+    // Rendered as a real component, not as the root callback: strict-read
+    // checking is armed by createComponent's dev wrapper, so a bare
+    // `render(() => …)` would leave the STRICT_READ_UNTRACKED assertion below
+    // unable to fail.
+    function Harness() {
       debouncer = createDebouncer(noop, { wait: 100 }, (s) => ({
         isPending: s.isPending,
       }))
       return <span>{String(debouncer.state().isPending)}</span>
-    })
+    }
+
+    const { unmount } = render(() => <Harness />)
     settle()
 
     debouncer.maybeExecute()
@@ -152,5 +165,55 @@ describe('no Solid dev diagnostics during ordinary use', () => {
     expect(messages).not.toMatch(/REACTIVE_WRITE_IN_OWNED_SCOPE/)
     expect(messages).not.toMatch(/REACTIVITY_HALTED/)
     expect(messages).not.toMatch(/STRICT_READ_UNTRACKED/)
+  })
+
+  /**
+   * The three `create*Value` wrappers seed their backing signal by reading the
+   * caller's accessor in the component body. That read is owned and untracked,
+   * so Solid 2 reports [STRICT_READ_UNTRACKED] unless it is deliberately
+   * untracked — once per consumer, which made every example noisy. Caught by
+   * the browser pass (pacer-n8j.4), not by anything the type system sees.
+   *
+   * The diagnostic is a false positive here rather than a staleness bug: the
+   * accompanying assertion is that the value still mirrors its source, so a
+   * future `untrack` that also swallowed the reactivity would fail this test.
+   */
+  it.each([
+    ['createDebouncedValue', createDebouncedValue],
+    ['createThrottledValue', createThrottledValue],
+    ['createRateLimitedValue', createRateLimitedValue],
+  ])('%s seeds without a strict-read diagnostic', (_name, factory) => {
+    const [source, setSource] = createSignal(1)
+    let mirrored: () => number
+
+    // Must be a real component. Solid 2 enables strict-read checking only
+    // inside createComponent — dev wraps the call as
+    // `untrack(() => Comp(props), \`<Name>\`)`, and that second argument is
+    // what arms the diagnostic. Rendering the root callback directly leaves it
+    // disarmed and makes the assertion below silently vacuous.
+    function Harness() {
+      const [value] = (factory as any)(
+        source,
+        // Every one of the three accepts these; each ignores the options it
+        // does not use.
+        { wait: 50, limit: 10, window: 1000, leading: true },
+      )
+      mirrored = value
+      return <span>{String(value())}</span>
+    }
+
+    render(() => <Harness />)
+    settle()
+
+    // The seeding read must still have produced the source's value.
+    expect(mirrored!()).toBe(1)
+
+    setSource(2)
+    settle()
+
+    const messages = [...warn.mock.calls, ...error.mock.calls].flat().map(String).join('\n')
+    expect(messages).not.toMatch(/STRICT_READ_UNTRACKED/)
+    expect(messages).not.toMatch(/REACTIVE_WRITE_IN_OWNED_SCOPE/)
+    expect(messages).not.toMatch(/REACTIVITY_HALTED/)
   })
 })

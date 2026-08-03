@@ -1,4 +1,4 @@
-import { createEffect } from 'solid-js'
+import { createEffect, untrack } from 'solid-js'
 import { createThrottledSignal } from './createThrottledSignal'
 import type { SolidThrottler, SolidThrottlerOptions } from './createThrottler'
 import type { Accessor, Setter } from 'solid-js'
@@ -69,7 +69,13 @@ export function createThrottledValue<TValue, TSelected = {}>(
   selector?: (state: ThrottlerState<Setter<TValue>>) => TSelected,
 ): [Accessor<TValue>, SolidThrottler<Setter<TValue>, TSelected>] {
   const [throttledValue, setThrottledValue, throttler] = createThrottledSignal(
-    value(),
+    // Seed only — the ongoing mirror is the tracked effect below. Reading the
+    // accessor bare here is an owned, untracked read, which Solid 2 reports as
+    // [STRICT_READ_UNTRACKED] once per consumer of this primitive. Here the
+    // diagnostic is a false positive rather than a staleness bug: the value
+    // does keep updating, via the effect. Untrack the seeding read deliberately
+    // so callers do not have to reason about a warning that does not apply.
+    untrack(value),
     initialOptions,
     selector,
   )
