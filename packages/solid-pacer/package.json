@@ -26,9 +26,10 @@
     "clean": "premove ./build ./dist",
     "lint:fix": "eslint ./src --fix",
     "test:eslint": "eslint ./src",
-    "test:lib": "vitest --passWithNoTests",
+    "test:lib": "vitest",
     "test:lib:dev": "pnpm test:lib --watch",
     "test:types": "tsc",
+    "test:build": "node ./scripts/check-ssr-safe-dist.mjs",
     "build": "tsdown"
   },
   "type": "module",
@@ -104,13 +105,17 @@
   ],
   "dependencies": {
     "@tanstack/pacer": "workspace:*",
-    "@tanstack/solid-store": "^0.11.0"
+    "@tanstack/solid-store": "github:dkkloimwieder/store#9709dab20a007c3e9dc2cd8cee0960d57e38cbea&path:/packages/solid-store"
   },
   "devDependencies": {
-    "solid-js": "^1.9.12",
-    "vite-plugin-solid": "^2.11.12"
+    "@solidjs/testing-library": "1.0.0-beta.2",
+    "@solidjs/web": "2.0.0-beta.30",
+    "jsdom": "^29.1.1",
+    "solid-js": "2.0.0-beta.30",
+    "vite-plugin-solid": "3.0.0-next.21"
   },
   "peerDependencies": {
-    "solid-js": ">=1.9.5"
+    "@solidjs/web": ">=2.0.0-beta.30 <3.0.0",
+    "solid-js": ">=2.0.0-beta.30 <3.0.0"
   }
 }

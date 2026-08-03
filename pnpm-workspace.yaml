@@ -2,9 +2,32 @@ cleanupUnusedCatalogs: true
 linkWorkspacePackages: true
 preferWorkspacePackages: true
 
+# Solid 2 transition (remove once these age past the policy window): the Solid 2
+# beta line publishes frequently, and pnpm's minimum-release-age check rejects
+# packages younger than the cutoff.
+minimumReleaseAgeExclude:
+  - '@dom-expressions/babel-plugin-jsx@0.50.0-next.35'
+  - '@solidjs/signals@2.0.0-beta.30'
+  - '@solidjs/web@2.0.0-beta.30'
+  - 'babel-preset-solid@2.0.0-beta.30'
+  - 'solid-js@2.0.0-beta.30'
+
 packages:
   - 'examples/**/*'
   - 'packages/*'
+
+packageExtensions:
+  # Solid 2 transition (remove at Solid 2 GA): testing-library declares `>=2.0.0`
+  # peers, and semver only admits a prerelease when some comparator in the range
+  # shares its [major,minor,patch] — so `>=2.0.0` does not match `2.0.0-beta.30`.
+  '@solidjs/testing-library':
+    peerDependencies:
+      solid-js: '>=2.0.0-0 <3.0.0'
+      '@solidjs/web': '>=2.0.0-0 <3.0.0'
+  # vite-plugin-solid 3 has not yet widened its jest-dom peer to ^7.
+  vite-plugin-solid:
+    peerDependencies:
+      '@testing-library/jest-dom': '^5.16.6 || ^6.0.0 || ^7.0.0'
 
 overrides:
   '@tanstack/angular-pacer': 'workspace:*'
@@ -17,6 +40,22 @@ overrides:
   '@tanstack/react-pacer-devtools': 'workspace:*'
   '@tanstack/solid-pacer': 'workspace:*'
   '@tanstack/solid-pacer-devtools': 'workspace:*'
+
+  # Solid 2 transition: the TanStack devtools UI stack is built on Solid 1 and
+  # imports `solid-js/web`, an entrypoint solid-js@2 no longer exports. Once the
+  # Solid examples move to solid-js@2, pnpm's peer dedupe would otherwise
+  # re-resolve this family against Solid 2 and break the React and Preact
+  # devtools builds. Scoped so only these packages' nested solid-js is pinned.
+  #
+  # Deliberately NOT overridden here: @tanstack/solid-store. packages/pacer-devtools
+  # depends on it and is a Solid 1 app consumed by three adapters — its Solid 2
+  # pin belongs in packages/solid-pacer/package.json only.
+  '@tanstack/devtools>solid-js': '^1.9.14'
+  '@tanstack/devtools-ui>solid-js': '^1.9.14'
+  '@tanstack/devtools-utils>solid-js': '^1.9.14'
+  '@tanstack/solid-devtools>solid-js': '^1.9.14'
+  '@tanstack/react-devtools>solid-js': '^1.9.14'
+  '@tanstack/preact-devtools>solid-js': '^1.9.14'
 
 allowBuilds:
   # root dependency

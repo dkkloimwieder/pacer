@@ -2,7 +2,11 @@
   "extends": "../../tsconfig.json",
   "compilerOptions": {
     "jsx": "preserve",
-    "jsxImportSource": "solid-js"
+    "jsxImportSource": "@solidjs/web",
+    // Match the runtime the tests execute under: vite-plugin-solid injects the
+    // browser/development conditions in test mode, and solid-js maps the bare
+    // node condition to an inert server build.
+    "customConditions": ["browser", "development"]
   },
   "include": ["src", "vitest.config.ts", "tests"],
   "exclude": ["eslint.config.js"]
